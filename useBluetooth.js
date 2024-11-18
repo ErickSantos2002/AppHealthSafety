@@ -7,19 +7,19 @@ const manager = new BleManager();
 export const useBluetooth = () => {
   const [devices, setDevices] = useState([]);
   const [connectedDevice, setConnectedDevice] = useState(null);
-  const [writableCharacteristic, setWritableCharacteristic] = useState(null);
-  const [monitorSubscription, setMonitorSubscription] = useState(null);
+  const [writableCharacteristic, setWritableCharacteristic] = useState(null); // Característica de escrita
+  const [receivedData, setReceivedData] = useState([]); // Dados reais recebidos
 
   const startScan = () => {
     setDevices([]);
     manager.startDeviceScan(null, null, (error, device) => {
       if (error) {
-        console.log("Erro no escaneamento:", error);
+        console.error("Erro no escaneamento:", error);
         return;
       }
       if (device?.name) {
-        setDevices((prevDevices) =>
-          prevDevices.some((d) => d.id === device.id) ? prevDevices : [...prevDevices, { id: device.id, name: device.name }]
+        setDevices((prev) =>
+          prev.some((d) => d.id === device.id) ? prev : [...prev, { id: device.id, name: device.name }]
         );
       }
     });
@@ -28,43 +28,33 @@ export const useBluetooth = () => {
 
   const connectToDevice = async (device) => {
     try {
-      console.log(`Conectando ao dispositivo: ${device.name}`);
-      const connectedDevice = await manager.connectToDevice(device.id);
-      setConnectedDevice(connectedDevice);
-      console.log("Conexão estabelecida com sucesso!");
+      const connected = await manager.connectToDevice(device.id);
+      setConnectedDevice(connected);
+      await connected.discoverAllServicesAndCharacteristics();
 
-      // Descobrir serviços e características
-      await connectedDevice.discoverAllServicesAndCharacteristics();
-      const services = await connectedDevice.services();
-      const service = services.find((s) => s.uuid === '0000fff0-0000-1000-8000-00805f9b34fb');
-      if (!service) throw new Error("Serviço 0000fff0 não encontrado.");
+      const characteristics = await connected.characteristicsForService('0000fff0-0000-1000-8000-00805f9b34fb');
+      if (!characteristics) throw new Error("Serviço ou característica não encontrada!");
 
-      const characteristics = await service.characteristics();
+      const writable = characteristics.find((char) => char.isWritableWithResponse);
+      const notifiable = characteristics.find((char) => char.isNotifiable);
 
-      // Configurar característica para escrita
-      const writable = characteristics.find((c) => c.uuid === '0000fff2-0000-1000-8000-00805f9b34fb');
-      if (!writable) throw new Error("Característica 0000fff2 não encontrada.");
+      if (!writable) throw new Error("Característica de escrita não encontrada!");
       setWritableCharacteristic(writable);
-      console.log("Característica configurada para escrita: 0000fff2");
 
-      // Configurar característica para monitoramento (0000fff1)
-      const notifiable = characteristics.find((c) => c.uuid === '0000fff1-0000-1000-8000-00805f9b34fb');
+      // Monitorar dados recebidos
       if (notifiable) {
-        console.log("Iniciando monitoramento de notificações na característica 0000fff1...");
-        const subscription = notifiable.monitor((error, characteristic) => {
+        notifiable.monitor((error, characteristic) => {
           if (error) {
-            console.log("Erro no monitoramento:", error);
+            console.error("Erro ao monitorar:", error);
             return;
           }
-          const rawData = Buffer.from(characteristic.value, 'base64');
-          const commandCode = rawData.slice(1, 4).toString('utf-8').trim();
-          const data = rawData.slice(4, 17).toString('utf-8').trim();
-          const bat = rawData[17];
-          console.log("Dados recebidos:", { commandCode, data, bat });
+          if (characteristic?.value) {
+            const value = Buffer.from(characteristic.value, 'base64');
+            const commandCode = value.slice(1, 4).toString('utf-8').trim();
+            const data = value.slice(4, 17).toString('utf-8').replace(/#/g, ''); // Remove os `#`
+            setReceivedData((prev) => [{ commandCode, data }, ...prev]);
+          }
         });
-        setMonitorSubscription(subscription);
-      } else {
-        console.log("Nenhuma característica notificável encontrada.");
       }
     } catch (error) {
       console.error("Erro ao conectar:", error);
@@ -106,9 +96,22 @@ export const useBluetooth = () => {
 
   const calculateBCC = (commandCode, data, bat) => {
     let sum = 0;
-    const bytes = Buffer.concat([Buffer.from(commandCode, 'utf-8'), Buffer.from(data, 'utf-8'), Buffer.from([bat])]);
+    const bytes = Buffer.concat([
+      Buffer.from(commandCode, 'utf-8'),
+      Buffer.from(data, 'utf-8'),
+      Buffer.from([bat]),
+    ]);
     bytes.forEach((byte) => (sum += byte));
     return (~sum + 1) & 0xff;
+  };
+
+  const disconnectDevice = async () => {
+    if (connectedDevice) {
+      await manager.cancelDeviceConnection(connectedDevice.id);
+      setConnectedDevice(null);
+      setWritableCharacteristic(null);
+      console.log("Dispositivo desconectado com sucesso.");
+    }
   };
 
   return {
@@ -117,5 +120,7 @@ export const useBluetooth = () => {
     startScan,
     connectToDevice,
     sendCommand,
+    receivedData,
+    disconnectDevice,
   };
 };
