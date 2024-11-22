@@ -28,21 +28,31 @@ export const useBluetooth = () => {
 
   const connectToDevice = async (device) => {
     try {
+      console.log(`Tentando conectar ao dispositivo: ${device.name}`);
       const connected = await manager.connectToDevice(device.id);
       setConnectedDevice(connected);
+  
+      console.log("Aguardando estabilização...");
+      await delay(500); // Aguarda para estabilizar a conexão
+  
+      console.log("Descobrindo serviços e características...");
       await connected.discoverAllServicesAndCharacteristics();
-
+      await delay(500);
+  
       const characteristics = await connected.characteristicsForService('0000fff0-0000-1000-8000-00805f9b34fb');
-      if (!characteristics) throw new Error("Serviço ou característica não encontrada!");
-
-      const writable = characteristics.find((char) => char.isWritableWithResponse);
-      const notifiable = characteristics.find((char) => char.isNotifiable);
-
-      if (!writable) throw new Error("Característica de escrita não encontrada!");
+      const writable = characteristics.find((char) => char.uuid === '0000fff2-0000-1000-8000-00805f9b34fb');
+      const notifiable = characteristics.find((char) => char.uuid === '0000fff1-0000-1000-8000-00805f9b34fb');
+  
+      if (!writable) {
+        throw new Error("Nenhuma característica gravável encontrada.");
+      }
+  
       setWritableCharacteristic(writable);
-
-      // Monitorar dados recebidos
+      console.log(`Característica configurada para escrita: ${writable.uuid}`);
+  
+      // Configuração de Notificações
       if (notifiable) {
+        console.log(`Ativando notificações para a característica: ${notifiable.uuid}`);
         notifiable.monitor((error, characteristic) => {
           if (error) {
             console.error("Erro ao monitorar:", error);
@@ -51,8 +61,9 @@ export const useBluetooth = () => {
           if (characteristic?.value) {
             const value = Buffer.from(characteristic.value, 'base64');
             const commandCode = value.slice(1, 4).toString('utf-8').trim();
-            const data = value.slice(4, 17).toString('utf-8').replace(/#/g, ''); // Remove os `#`
+            const data = value.slice(4, 17).toString('utf-8').replace(/#/g, '');
             setReceivedData((prev) => [{ commandCode, data }, ...prev]);
+            console.log(`Notificação recebida: Comando: ${commandCode}, Dados: ${data}`);
           }
         });
       }
@@ -60,15 +71,22 @@ export const useBluetooth = () => {
       console.error("Erro ao conectar:", error);
     }
   };
+  
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const sendCommand = async (command, data, bat) => {
     if (!writableCharacteristic) {
       console.error("Característica para escrita não configurada.");
       return;
     }
-
+  
+    const packet = createPacket(command, data, bat);
+    if (packet.length > 20) {
+      console.error("Tamanho do pacote inválido:", packet.length);
+      return;
+    }
+  
     try {
-      const packet = createPacket(command, data, bat);
       console.log("Enviando comando:", { command, data, bat, packet });
       await writableCharacteristic.writeWithResponse(packet.toString('base64'));
       console.log(`Comando ${command} enviado com sucesso!`);

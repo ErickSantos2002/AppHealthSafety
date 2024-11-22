@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { useBluetooth } from './useBluetooth'; // Hook para BLE
 import styles from './styles';
 
@@ -7,6 +9,50 @@ export default function App() {
   const { devices, startScan, connectToDevice, sendCommand, receivedData } = useBluetooth();
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+
+  const requestPermissions = async () => {
+    if (Platform.OS === 'android' && Platform.Version >= 31) {
+      try {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          PermissionsAndroid.PERMISSIONS.NEARBY_WIFI_DEVICES, // Android 12+
+        ]);
+  
+        const allGranted = Object.values(granted).every(
+          (result) => result === PermissionsAndroid.RESULTS.GRANTED
+        );
+  
+        if (!allGranted) {
+          console.error("Permissões de Bluetooth negadas.");
+        }
+      } catch (err) {
+        console.error("Erro ao solicitar permissões de Bluetooth:", err);
+      }
+    }
+  };
+  
+  // Chame esta função na inicialização
+  requestPermissions();
+
+  const checkLocationEnabled = async () => {
+    if (Platform.OS === 'android') {
+      const locationEnabled = await LocationServicesDialogBox.checkLocationServicesIsEnabled({
+        message:
+          "A localização precisa estar ativada para escanear dispositivos Bluetooth.",
+        ok: "Ativar",
+        cancel: "Cancelar",
+      });
+  
+      if (!locationEnabled) {
+        Alert.alert(
+          "Localização Desativada",
+          "Ative a localização para escanear dispositivos Bluetooth."
+        );
+      }
+    }
+  };
 
   // Abre o modal e inicia o escaneamento
   const handleOpenModal = () => {
@@ -39,7 +85,7 @@ export default function App() {
               style={styles.button}
               onPress={() => sendCommand('A20', 'TEST,START', 4)}
             >
-              <Text style={styles.buttonText}>Iniciar Teste</Text>
+              <Text style={styles.buttonText}>Botão de Teste</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.disconnectButton]}

@@ -90,10 +90,15 @@ STX | Command | Data             | BAT | BCC | ETX
 
 ### Comandos Suportados
 
-Comando	|   Descrição	            |   Exemplo de Dados
+Comando	|   Descrição	            |   Data que precisa ser enviada junto  |   Exemplo de dados
+A01         Versão do Firmware          INFORMATION                             0.02,AL8800BT
+A03         Contagem de Uso             0 ou 1 ou 2                             
+A04         Informação de Calibração    0 ou 1 ou 2
+A05         Mudar unidade de medida     0 a 5
+A06         Verificar Alarme Calibração CAL,CHECK
+A19         Mudança de volume           0 a 4
 A20	        Iniciar Teste	            TEST,START
-A21	        Checar Tempo	            CHECK,TIME
-A01	        Solicitar Informações	    INFO,DEVICE
+A22         Voltar para espera          SOFT,RESET
 
 ### Respostas dos Comandos
 
