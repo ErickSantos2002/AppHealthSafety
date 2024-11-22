@@ -42,9 +42,19 @@ Certifique-se de ter as seguintes ferramentas instaladas antes de iniciar o proj
     ### iOS
     npx react-native run-ios
     ### Para um dispositivo Android específico
+    adb devices
     npx react-native run-android --deviceId <device_id>
 
 ---
+## Barra de navegação
+
+1 - Perfil (onde vai ter no topo da tela escrito "Perfil", um pouco acima do meio a logo, seguindo de vários campos [E-mail; Nome; Endereço e Telefone] e adiciona um textinho em baixo como "essas são as informações do seu perfil" no parte de baixo um botão com o nome "Salvar" para salvar as informações.)
+
+2 - Historico (vai ter no topo da tela escrito "Histórico" no mesmo estilo. onde nessa tela vai ter duas abas onde na primeira vai ter um gráfico de barras pra cima mostrando a quantidade de registros por dia no mês, em cima desse gráfico vai conseguir selecionar o mês e na parte de baixo do grafico vai ter uma lista mostrando os registros e a segunda vai ser Reprovados onde mostra apenas os reprovados)
+
+3 - Informação do Dispositivo (vai ter no topo da tela escrito "Informações do Dispositivo", nessa tela vai ter os campos mostrando as informações [Bluetooth; Data de calibração; Proxima Data de calibração; Testes disponiveis antes da recalibração; Unidade atual; Uso Total; Contagem de uso Após a Calibração; Número de vezes que o álcool foi rejeitado e a versão atual do firmware] boa parte dessas informações vamos conseguir enviando comandos ao dispositivo.)
+
+4 - Configurações (vai ter no topo da tela escrito "Configurações" onde vai ter algumas configurações que vai ter no aparelho que vai poder desativar e ativar, exportar registros e também mostrar a versão atual do aplicativo)
 
 ## Arquitetura do Projeto
 

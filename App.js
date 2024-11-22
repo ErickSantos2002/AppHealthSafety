@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
-import { PermissionsAndroid, Platform } from 'react-native';
-import { Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { PermissionsAndroid, Platform, Alert } from 'react-native';
 import { useBluetooth } from './useBluetooth'; // Hook para BLE
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import styles from './styles';
+import PerfilScreen from './screens/PerfilScreen';
+import HistoricoScreen from './screens/HistoricoScreen';
+import InformacoesDispositivoScreen from './screens/InformacoesDispositivoScreen';
+import ConfiguracoesScreen from './screens/ConfiguracoesScreen';
+import HomeScreen from './screens/HomeScreen';
 
 export default function App() {
+  const Tab = createBottomTabNavigator();
   const { devices, startScan, connectToDevice, sendCommand, receivedData } = useBluetooth();
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
@@ -19,11 +26,11 @@ export default function App() {
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           PermissionsAndroid.PERMISSIONS.NEARBY_WIFI_DEVICES, // Android 12+
         ]);
-  
+
         const allGranted = Object.values(granted).every(
           (result) => result === PermissionsAndroid.RESULTS.GRANTED
         );
-  
+
         if (!allGranted) {
           console.error("Permissões de Bluetooth negadas.");
         }
@@ -32,49 +39,66 @@ export default function App() {
       }
     }
   };
-  
-  // Chame esta função na inicialização
+
   requestPermissions();
 
-  const checkLocationEnabled = async () => {
-    if (Platform.OS === 'android') {
-      const locationEnabled = await LocationServicesDialogBox.checkLocationServicesIsEnabled({
-        message:
-          "A localização precisa estar ativada para escanear dispositivos Bluetooth.",
-        ok: "Ativar",
-        cancel: "Cancelar",
-      });
-  
-      if (!locationEnabled) {
-        Alert.alert(
-          "Localização Desativada",
-          "Ative a localização para escanear dispositivos Bluetooth."
-        );
-      }
-    }
-  };
-
-  // Abre o modal e inicia o escaneamento
   const handleOpenModal = () => {
     setModalVisible(true);
-    startScan(); // Inicia o escaneamento Bluetooth
+    startScan();
   };
 
-  // Seleciona o dispositivo e fecha o modal
   const handleDeviceSelect = async (device) => {
-    await connectToDevice(device); // Conecta ao dispositivo
-    setSelectedDevice(device); // Salva o dispositivo selecionado
-    setModalVisible(false); // Fecha o modal
+    await connectToDevice(device);
+    setSelectedDevice(device);
+    setModalVisible(false);
   };
 
-  // Desconectar do dispositivo
   const handleDisconnect = () => {
-    setSelectedDevice(null); // Remove o dispositivo selecionado
+    setSelectedDevice(null);
     console.log("Dispositivo desconectado.");
   };
 
   return (
     <View style={styles.container}>
+      {/* Imagem do lo
+      go */}
+      <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: '#6a0dad', // Fundo roxo
+            borderTopColor: 'transparent',
+            height: 60,
+          },
+          tabBarLabelStyle: {
+            color: '#fff', // Texto branco
+            fontSize: 14,
+          },
+          tabBarIconStyle: { display: 'none' }, // Remove ícones, deixando apenas texto
+        }}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'Principal' }} />
+        <Tab.Screen name="Perfil" component={PerfilScreen} options={{ tabBarLabel: 'Perfil' }} />
+        <Tab.Screen name="Historico" component={HistoricoScreen} options={{ tabBarLabel: 'Histórico' }} />
+        <Tab.Screen
+          name="InformacoesDispositivo"
+          component={InformacoesDispositivoScreen}
+          options={{ tabBarLabel: 'Dispositivo' }}
+        />
+        <Tab.Screen
+          name="Configuracoes"
+          component={ConfiguracoesScreen}
+          options={{ tabBarLabel: 'Configurações' }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+      <Image
+        source={require('./assets/images/Logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+
       <Text style={styles.title}>Bluetooth BLE App</Text>
 
       {/* Botões principais */}

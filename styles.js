@@ -4,9 +4,14 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 16,
     backgroundColor: '#6a0dad', // Fundo roxo
+  },
+  logo: {
+    width: 200, // Largura do logo aumentada
+    height: 200, // Altura do logo aumentada
+    marginTop: 40, // Move o logo mais para cima
+    marginBottom: 30, // Espaço abaixo do logo
   },
   title: {
     fontSize: 24,
@@ -18,7 +23,7 @@ export default StyleSheet.create({
     backgroundColor: '#6a0dad', // Roxo
     padding: 15,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 30, // Mais espaço entre o logo e o botão
     borderWidth: 2,
     borderColor: '#fff', // Contorno branco
     width: 200, // Largura do botão
@@ -81,8 +86,8 @@ export default StyleSheet.create({
     marginBottom: 5,
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 50, // Move os botões mais para baixo
     justifyContent: 'center',
     alignItems: 'center',
-  },  
+  },
 });
