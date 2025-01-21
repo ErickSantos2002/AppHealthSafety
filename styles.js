@@ -7,87 +7,101 @@ export default StyleSheet.create({
     padding: 16,
     backgroundColor: '#6a0dad', // Fundo roxo
   },
+  fullWidthContainer: {
+    flex: 1,
+    width: '100%', // O container ocupa toda a largura disponível
+    paddingHorizontal: 16, // Mantém o espaçamento horizontal consistente
+  },
+  title: {
+    fontSize: 28, // Maior para destaque
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#fff', // Texto branco
+  },
+  text: {
+    fontSize: 18, // Textos maiores
+    color: '#fff',
+    marginVertical: 10, // Espaçamento entre os elementos
+  },
+  textCenter: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
   logo: {
     width: 200, // Largura do logo aumentada
     height: 200, // Altura do logo aumentada
     marginTop: 40, // Move o logo mais para cima
     marginBottom: 30, // Espaço abaixo do logo
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#fff', // Texto branco
-  },
-  button: {
-    backgroundColor: '#6a0dad', // Roxo
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 30, // Mais espaço entre o logo e o botão
-    borderWidth: 2,
-    borderColor: '#fff', // Contorno branco
-    width: 200, // Largura do botão
-    alignSelf: 'center', // Centraliza o botão
+  configButton: {
+    // Botões de configuração
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginVertical: 10,
+    width: '100%',
   },
   buttonText: {
+    fontSize: 18,
+    color: '#fff',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '100%',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '100%',
+  },
+  input: {
+    width: 150,
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '100%',
+  },
+  picker: {
+    width: 150,
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  exitButtonContainer: {
+    width: '100%', // O container do botão ocupa toda a largura da tela
+    bottom: 0, // Fixa na parte inferior
+    left: 0,
+    right: 0,
+    backgroundColor: '#6a0dad', // Cor de fundo para preencher a largura
+    paddingVertical: 10,
+  },
+  exitButton: {
+    backgroundColor: '#b71c1c',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 16,
+  },
+  exitButtonText: {
     color: '#fff',
     fontSize: 18,
-    textAlign: 'center',
     fontWeight: 'bold',
-  },
-  disconnectButton: {
-    backgroundColor: '#b71c1c', // Vermelho para o botão de desconectar
-    marginTop: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo escuro transparente
-  },
-  modalContent: {
-    width: '90%',
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    elevation: 5, // Sombra no Android
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#6a0dad', // Roxo
-  },
-  device: {
-    fontSize: 18,
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: '#f3f3f3',
-    borderRadius: 5,
-    textAlign: 'center',
-  },
-  dataContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    width: '90%',
-    alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  dataText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 5,
-  },
-  buttonContainer: {
-    marginTop: 50, // Move os botões mais para baixo
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
